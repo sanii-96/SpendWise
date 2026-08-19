@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   Bell,
+  Plus,
   IndianRupee,
   TrendingUp,
   TrendingDown,
@@ -34,7 +35,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const [userName, setUserName] = useState('Sania')
+  // User-specific information
+  const [userName, setUserName] = useState('')
   const [currency, setCurrency] = useState('INR')
 
   // =========================
@@ -58,10 +60,11 @@ function Dashboard() {
       return
     }
 
+    // Get user's name from Supabase metadata
     const name =
-      user.user_metadata?.name ||
+      user.user_metadata?.name?.trim() ||
       user.email?.split('@')[0] ||
-      'Sania'
+      'User'
 
     setUserName(name)
 
@@ -265,7 +268,6 @@ function Dashboard() {
 
   const startOfWeek = new Date(now)
 
-  // Monday is the first day of the week
   const currentDay = now.getDay()
 
   const daysFromMonday =
@@ -492,8 +494,6 @@ function Dashboard() {
             MENU
           </p>
 
-          {/* OVERVIEW */}
-
           <button
             className="nav-item active"
             onClick={() =>
@@ -509,8 +509,6 @@ function Dashboard() {
 
             Overview
           </button>
-
-          {/* TRANSACTIONS */}
 
           <button
             className="nav-item"
@@ -528,8 +526,6 @@ function Dashboard() {
             Transactions
           </button>
 
-          {/* BUDGETS */}
-
           <button
             className="nav-item"
             onClick={() =>
@@ -545,8 +541,6 @@ function Dashboard() {
 
             Budgets
           </button>
-
-          {/* ANALYTICS */}
 
           <button
             className="nav-item"
@@ -567,8 +561,6 @@ function Dashboard() {
           <p className="nav-title second-title">
             OTHER
           </p>
-
-          {/* SETTINGS */}
 
           <button
             className="nav-item"
@@ -596,14 +588,16 @@ function Dashboard() {
 
             <div className="user-avatar">
               {userName
-                .charAt(0)
-                .toUpperCase()}
+                ? userName
+                    .charAt(0)
+                    .toUpperCase()
+                : 'U'}
             </div>
 
             <div>
 
               <strong>
-                {userName}
+                {userName || 'User'}
               </strong>
 
               <span>
@@ -636,9 +630,7 @@ function Dashboard() {
 
       <main className="dashboard-main">
 
-        {/* =========================
-            HEADER
-        ========================= */}
+        {/* HEADER */}
 
         <header className="dashboard-header">
 
@@ -656,6 +648,22 @@ function Dashboard() {
 
           <div className="header-actions">
 
+            {/* PRIMARY ACTION */}
+
+            <button
+              className="add-dashboard-btn"
+              onClick={() =>
+                navigate('/transactions?add=true')
+              }
+            >
+              <Plus
+                size={16}
+                strokeWidth={2}
+              />
+
+              Add Transaction
+            </button>
+
             <button
               className="notification-btn"
               aria-label="Notifications"
@@ -670,14 +678,16 @@ function Dashboard() {
 
               <div className="user-avatar">
                 {userName
-                  .charAt(0)
-                  .toUpperCase()}
+                  ? userName
+                      .charAt(0)
+                      .toUpperCase()
+                  : 'U'}
               </div>
 
               <div>
 
                 <strong>
-                  {userName}
+                  {userName || 'User'}
                 </strong>
 
                 <span>
@@ -692,13 +702,9 @@ function Dashboard() {
 
         </header>
 
-        {/* =========================
-            SUMMARY CARDS
-        ========================= */}
+        {/* SUMMARY CARDS */}
 
         <section className="summary-grid">
-
-          {/* TOTAL BALANCE */}
 
           <div className="summary-card balance-card">
 
@@ -737,8 +743,6 @@ function Dashboard() {
 
           </div>
 
-          {/* TOTAL INCOME */}
-
           <div className="summary-card">
 
             <div className="summary-card-top">
@@ -770,8 +774,6 @@ function Dashboard() {
 
           </div>
 
-          {/* TOTAL EXPENSES */}
-
           <div className="summary-card">
 
             <div className="summary-card-top">
@@ -802,8 +804,6 @@ function Dashboard() {
             </p>
 
           </div>
-
-          {/* SAVINGS */}
 
           <div className="summary-card">
 
@@ -838,9 +838,7 @@ function Dashboard() {
 
         </section>
 
-        {/* =========================
-            ERROR
-        ========================= */}
+        {/* ERROR */}
 
         {!loading && error && (
 
@@ -862,15 +860,11 @@ function Dashboard() {
 
         )}
 
-        {/* =========================
-            MIDDLE SECTION
-        ========================= */}
+        {/* MIDDLE SECTION */}
 
         <section className="dashboard-grid">
 
-          {/* =========================
-              SPENDING OVERVIEW
-          ========================= */}
+          {/* SPENDING OVERVIEW */}
 
           <div className="dashboard-panel spending-panel">
 
@@ -985,9 +979,7 @@ function Dashboard() {
 
           </div>
 
-          {/* =========================
-              MONTHLY BUDGET
-          ========================= */}
+          {/* MONTHLY BUDGET */}
 
           <div className="dashboard-panel budget-panel">
 
@@ -1056,20 +1048,30 @@ function Dashboard() {
                         budgetRemaining
                       )
                     )} over budget`
-                : 'Create a budget to start tracking your spending.'}
+                : 'Set a monthly budget to start tracking your spending.'}
 
             </p>
 
-            <div className="budget-categories">
+            {monthlyBudget === 0 && !loading && (
+              <button
+                className="add-transaction-btn"
+                onClick={() => navigate('/budgets')}
+              >
+                <Plus size={16} strokeWidth={2} />
+                Create Budget
+              </button>
+            )}
 
-              {/* FOOD */}
+            <div className="budget-categories">
 
               <div>
 
                 <span>
+
                   <i className="category-dot food-dot"></i>
 
                   Food
+
                 </span>
 
                 <strong>
@@ -1099,14 +1101,14 @@ function Dashboard() {
 
               </div>
 
-              {/* TRANSPORT */}
-
               <div>
 
                 <span>
+
                   <i className="category-dot transport-dot"></i>
 
                   Transport
+
                 </span>
 
                 <strong>
@@ -1136,14 +1138,14 @@ function Dashboard() {
 
               </div>
 
-              {/* SHOPPING */}
-
               <div>
 
                 <span>
+
                   <i className="category-dot shopping-dot"></i>
 
                   Shopping
+
                 </span>
 
                 <strong>
@@ -1179,9 +1181,7 @@ function Dashboard() {
 
         </section>
 
-        {/* =========================
-            RECENT TRANSACTIONS
-        ========================= */}
+        {/* RECENT TRANSACTIONS */}
 
         <section className="dashboard-panel transactions-panel">
 
@@ -1218,17 +1218,17 @@ function Dashboard() {
 
           <div className="transaction-list">
 
-            {/* LOADING */}
-
             {loading && (
 
               <div className="no-transactions">
 
                 <div>
+
                   <Clock3
                     size={24}
                     strokeWidth={1.8}
                   />
+
                 </div>
 
                 <h3>
@@ -1239,8 +1239,6 @@ function Dashboard() {
 
             )}
 
-            {/* EMPTY */}
-
             {!loading &&
               !error &&
               recentTransactions.length ===
@@ -1249,10 +1247,12 @@ function Dashboard() {
                 <div className="no-transactions">
 
                   <div>
+
                     <CreditCard
                       size={24}
                       strokeWidth={1.8}
                     />
+
                   </div>
 
                   <h3>
@@ -1267,8 +1267,6 @@ function Dashboard() {
                 </div>
 
               )}
-
-            {/* TRANSACTIONS */}
 
             {!loading &&
               !error &&

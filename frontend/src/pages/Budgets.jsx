@@ -16,7 +16,6 @@ import {
   Trash2,
   Clock3,
   WalletCards,
-  AlertCircle,
   CheckCircle2,
   TriangleAlert,
   OctagonAlert,
@@ -29,6 +28,13 @@ function Budgets() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const [feedback, setFeedback] = useState({
+    type: '',
+    message: '',
+  })
+
+  const [deleteTarget, setDeleteTarget] = useState(null)
+
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
 
@@ -37,6 +43,298 @@ function Budgets() {
     amount: '',
     month: new Date().toISOString().slice(0, 7),
   })
+
+  // =========================
+  // SEND BUDGET EMAIL
+  // =========================
+
+  const sendBudgetAlert = async ({
+    category,
+    budgetAmount,
+    spent,
+    percentage,
+    status,
+    month,
+  }) => {
+    try {
+      const subject =
+        status === 'exceeded'
+          ? `🚨 SpendWise: ${category} budget exceeded`
+          : `⚠️ SpendWise: ${category} budget warning`
+
+      const remaining = Number(budgetAmount) - Number(spent)
+
+      const html = `
+        <div
+          style="
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            padding: 30px;
+          "
+        >
+          <div
+            style="
+              max-width: 600px;
+              margin: 0 auto;
+              background: white;
+              border-radius: 14px;
+              padding: 30px;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            "
+          >
+            <h2
+              style="
+                margin-top: 0;
+                color: #172033;
+              "
+            >
+              ${
+                status === 'exceeded'
+                  ? '🚨 Budget Exceeded'
+                  : '⚠️ Budget Warning'
+              }
+            </h2>
+
+            <p
+              style="
+                color: #526079;
+                font-size: 15px;
+                line-height: 1.6;
+              "
+            >
+              ${
+                status === 'exceeded'
+                  ? `You've exceeded your ${category} budget.`
+                  : `You've used 80% or more of your ${category} budget.`
+              }
+            </p>
+
+            <div
+              style="
+                background: #f7f9fc;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 20px 0;
+              "
+            >
+              <p><strong>Category:</strong> ${category}</p>
+              <p><strong>Month:</strong> ${month}</p>
+              <p><strong>Budget:</strong> ₹${Number(budgetAmount).toLocaleString('en-IN')}</p>
+              <p><strong>Spent:</strong> ₹${Number(spent).toLocaleString('en-IN')}</p>
+              <p><strong>Used:</strong> ${Number(percentage).toFixed(0)}%</p>
+              <p>
+                <strong>Remaining:</strong>
+                ₹${Math.abs(remaining).toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            <p
+              style="
+                color: #526079;
+                font-size: 14px;
+              "
+            >
+              Open SpendWise to review your transactions and manage your budget.
+            </p>
+
+            <p
+              style="
+                color: #8a94a6;
+                font-size: 12px;
+                margin-top: 25px;
+              "
+            >
+              This is an automated notification from SpendWise.
+            </p>
+          </div>
+        </div>
+      `
+
+      const { error } =
+        await supabase.functions.invoke(
+          'send-budget-alert',
+          {
+            body: {
+              subject,
+              html,
+            },
+          }
+        )
+
+      if (error) {
+        console.error(
+          'Budget email error:',
+          error
+        )
+
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.error(
+        'Unable to send budget email:',
+        error
+      )
+
+      return false
+    }
+  }
+
+  // =========================
+  // CHECK BUDGET ALERTS
+  // =========================
+
+  const checkBudgetAlerts = async (
+    budgetList,
+    transactionList
+  ) => {
+    for (const budget of budgetList) {
+      const budgetMonth =
+        budget.month.slice(0, 7)
+
+      const spent = transactionList
+        .filter((transaction) => {
+          const transactionMonth =
+            transaction.date?.slice(0, 7)
+
+          return (
+            transaction.category ===
+              budget.category &&
+            transaction.type?.toLowerCase() ===
+              'expense' &&
+            transactionMonth === budgetMonth
+          )
+        })
+        .reduce(
+          (total, transaction) =>
+            total + Number(transaction.amount),
+          0
+        )
+
+      const budgetAmount =
+        Number(budget.amount)
+
+      if (budgetAmount <= 0) continue
+
+      const percentage =
+        (spent / budgetAmount) * 100
+
+      let currentStatus = 'safe'
+
+      if (spent >= budgetAmount) {
+        currentStatus = 'exceeded'
+      } else if (
+        spent >= budgetAmount * 0.8
+      ) {
+        currentStatus = 'warning'
+      }
+
+      const alertKey =
+        `spendwise-budget-${budget.id}`
+
+      const previousStatus =
+        localStorage.getItem(alertKey)
+
+      // First time checking this budget
+      if (!previousStatus) {
+        if (
+          currentStatus === 'warning' ||
+          currentStatus === 'exceeded'
+        ) {
+          const sent =
+            await sendBudgetAlert({
+              category: budget.category,
+              budgetAmount,
+              spent,
+              percentage,
+              status: currentStatus,
+              month: formatMonth(
+                budget.month
+              ),
+            })
+
+          if (sent) {
+            localStorage.setItem(
+              alertKey,
+              currentStatus
+            )
+          }
+        } else {
+          localStorage.setItem(
+            alertKey,
+            'safe'
+          )
+        }
+
+        continue
+      }
+
+      // Budget went back below 80%
+      if (currentStatus === 'safe') {
+        if (previousStatus !== 'safe') {
+          localStorage.setItem(
+            alertKey,
+            'safe'
+          )
+        }
+
+        continue
+      }
+
+      // Safe -> Warning
+      if (
+        currentStatus === 'warning' &&
+        previousStatus === 'safe'
+      ) {
+        const sent =
+          await sendBudgetAlert({
+            category: budget.category,
+            budgetAmount,
+            spent,
+            percentage,
+            status: 'warning',
+            month: formatMonth(
+              budget.month
+            ),
+          })
+
+        if (sent) {
+          localStorage.setItem(
+            alertKey,
+            'warning'
+          )
+        }
+
+        continue
+      }
+
+      // Warning -> Exceeded
+      if (
+        currentStatus === 'exceeded' &&
+        previousStatus !== 'exceeded'
+      ) {
+        const sent =
+          await sendBudgetAlert({
+            category: budget.category,
+            budgetAmount,
+            spent,
+            percentage,
+            status: 'exceeded',
+            month: formatMonth(
+              budget.month
+            ),
+          })
+
+        if (sent) {
+          localStorage.setItem(
+            alertKey,
+            'exceeded'
+          )
+        }
+      }
+    }
+  }
 
   // =========================
   // FETCH DATA
@@ -54,50 +352,109 @@ function Budgets() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setFeedback({
+        type: 'error',
+        message:
+          'Your session has expired. Please log in again.',
+      })
+
       setLoading(false)
       return
     }
 
-    const { data: budgetData, error: budgetError } =
-      await supabase
-        .from('budgets')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('month', { ascending: false })
+    const {
+      data: budgetData,
+      error: budgetError,
+    } = await supabase
+      .from('budgets')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('month', {
+        ascending: false,
+      })
 
     if (budgetError) {
       console.error(budgetError)
-      alert(budgetError.message)
+
+      setFeedback({
+        type: 'error',
+        message:
+          budgetError.message ||
+          'Unable to load budgets.',
+      })
+
       setLoading(false)
       return
     }
 
-    const { data: transactionData, error: transactionError } =
-      await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id)
+    const {
+      data: transactionData,
+      error: transactionError,
+    } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
 
     if (transactionError) {
       console.error(transactionError)
-      alert(transactionError.message)
+
+      setFeedback({
+        type: 'error',
+        message:
+          transactionError.message ||
+          'Unable to load transactions.',
+      })
+
       setLoading(false)
       return
     }
 
-    setBudgets(budgetData || [])
-    setTransactions(transactionData || [])
+    const finalBudgets =
+      budgetData || []
+
+    const finalTransactions =
+      transactionData || []
+
+    setBudgets(finalBudgets)
+    setTransactions(finalTransactions)
+
+    // Check whether any budget has crossed
+    // an alert threshold.
+    await checkBudgetAlerts(
+      finalBudgets,
+      finalTransactions
+    )
 
     setLoading(false)
   }
+
+  // =========================
+  // AUTO-DISMISS FEEDBACK
+  // =========================
+
+  useEffect(() => {
+    if (!feedback.message) return
+
+    const timer = setTimeout(() => {
+      setFeedback({
+        type: '',
+        message: '',
+      })
+    }, 3500)
+
+    return () =>
+      clearTimeout(timer)
+  }, [feedback.message])
 
   // =========================
   // FORM
   // =========================
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const {
+      name,
+      value,
+    } = e.target
 
     setFormData((current) => ({
       ...current,
@@ -111,7 +468,9 @@ function Budgets() {
     setFormData({
       category: 'Food',
       amount: '',
-      month: new Date().toISOString().slice(0, 7),
+      month: new Date()
+        .toISOString()
+        .slice(0, 7),
     })
 
     setShowForm(true)
@@ -136,7 +495,9 @@ function Budgets() {
     setFormData({
       category: 'Food',
       amount: '',
-      month: new Date().toISOString().slice(0, 7),
+      month: new Date()
+        .toISOString()
+        .slice(0, 7),
     })
   }
 
@@ -147,8 +508,16 @@ function Budgets() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      alert('Please enter a valid budget amount.')
+    if (
+      !formData.amount ||
+      Number(formData.amount) <= 0
+    ) {
+      setFeedback({
+        type: 'error',
+        message:
+          'Please enter a valid budget amount.',
+      })
+
       return
     }
 
@@ -159,7 +528,12 @@ function Budgets() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setFeedback({
+        type: 'error',
+        message:
+          'Your session has expired. Please log in again.',
+      })
+
       setSaving(false)
       return
     }
@@ -172,7 +546,10 @@ function Budgets() {
 
     // UPDATE
     if (editingId) {
-      const { data, error } = await supabase
+      const {
+        data,
+        error,
+      } = await supabase
         .from('budgets')
         .update(budgetData)
         .eq('id', editingId)
@@ -182,24 +559,53 @@ function Budgets() {
 
       if (error) {
         console.error(error)
-        alert(error.message)
+
+        setFeedback({
+          type: 'error',
+          message:
+            error.message ||
+            'Something went wrong. Please try again.',
+        })
+
         setSaving(false)
         return
       }
 
       setBudgets((current) =>
         current.map((budget) =>
-          budget.id === editingId ? data : budget
+          budget.id === editingId
+            ? data
+            : budget
         )
+      )
+
+      // Reset alert state when budget is edited
+      // so the new threshold can be evaluated.
+      localStorage.removeItem(
+        `spendwise-budget-${editingId}`
       )
 
       closeForm()
       setSaving(false)
+
+      setFeedback({
+        type: 'success',
+        message:
+          'Budget updated successfully.',
+      })
+
+      // Refresh data so the edited budget
+      // is immediately evaluated.
+      await fetchData()
+
       return
     }
 
     // INSERT
-    const { data, error } = await supabase
+    const {
+      data,
+      error,
+    } = await supabase
       .from('budgets')
       .insert([
         {
@@ -212,51 +618,102 @@ function Budgets() {
 
     if (error) {
       console.error(error)
-      alert(error.message)
+
+      setFeedback({
+        type: 'error',
+        message:
+          error.message ||
+          'Something went wrong. Please try again.',
+      })
+
       setSaving(false)
       return
     }
 
-    setBudgets((current) => [data, ...current])
+    setBudgets((current) => [
+      data,
+      ...current,
+    ])
 
     closeForm()
     setSaving(false)
+
+    setFeedback({
+      type: 'success',
+      message:
+        'Budget created successfully.',
+    })
   }
 
   // =========================
   // DELETE
   // =========================
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this budget?'
-    )
+  const requestDelete = (budget) => {
+    setDeleteTarget(budget)
+  }
 
-    if (!confirmed) return
+  const cancelDelete = () => {
+    setDeleteTarget(null)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
 
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setDeleteTarget(null)
+
+      setFeedback({
+        type: 'error',
+        message:
+          'Your session has expired. Please log in again.',
+      })
+
       return
     }
 
-    const { error } = await supabase
-      .from('budgets')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id)
+    const { error } =
+      await supabase
+        .from('budgets')
+        .delete()
+        .eq('id', deleteTarget.id)
+        .eq('user_id', user.id)
 
     if (error) {
-      alert(error.message)
+      setDeleteTarget(null)
+
+      setFeedback({
+        type: 'error',
+        message:
+          error.message ||
+          'Unable to delete the budget.',
+      })
+
       return
     }
 
-    setBudgets((current) =>
-      current.filter((budget) => budget.id !== id)
+    localStorage.removeItem(
+      `spendwise-budget-${deleteTarget.id}`
     )
+
+    setBudgets((current) =>
+      current.filter(
+        (budget) =>
+          budget.id !== deleteTarget.id
+      )
+    )
+
+    setDeleteTarget(null)
+
+    setFeedback({
+      type: 'success',
+      message:
+        'Budget deleted successfully.',
+    })
   }
 
   // =========================
@@ -264,7 +721,8 @@ function Budgets() {
   // =========================
 
   const getSpent = (budget) => {
-    const budgetMonth = budget.month.slice(0, 7)
+    const budgetMonth =
+      budget.month.slice(0, 7)
 
     return transactions
       .filter((transaction) => {
@@ -272,14 +730,18 @@ function Budgets() {
           transaction.date?.slice(0, 7)
 
         return (
-          transaction.category === budget.category &&
-          transaction.type?.toLowerCase() === 'expense' &&
-          transactionMonth === budgetMonth
+          transaction.category ===
+            budget.category &&
+          transaction.type?.toLowerCase() ===
+            'expense' &&
+          transactionMonth ===
+            budgetMonth
         )
       })
       .reduce(
         (total, transaction) =>
-          total + Number(transaction.amount),
+          total +
+          Number(transaction.amount),
         0
       )
   }
@@ -289,23 +751,39 @@ function Budgets() {
   // =========================
 
   const formatMoney = (amount) => {
-    return `₹${Number(amount).toLocaleString('en-IN')}`
+    return `₹${Number(
+      amount
+    ).toLocaleString('en-IN')}`
   }
 
   const formatMonth = (date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      month: 'long',
-      year: 'numeric',
-    })
+    return new Date(
+      date
+    ).toLocaleDateString(
+      'en-IN',
+      {
+        month: 'long',
+        year: 'numeric',
+      }
+    )
   }
 
-  const getPercentage = (spent, budget) => {
+  const getPercentage = (
+    spent,
+    budget
+  ) => {
     if (budget <= 0) return 0
 
-    return Math.min((spent / budget) * 100, 100)
+    return Math.min(
+      (spent / budget) * 100,
+      100
+    )
   }
 
-  const getStatus = (spent, budget) => {
+  const getStatus = (
+    spent,
+    budget
+  ) => {
     if (spent >= budget) {
       return 'exceeded'
     }
@@ -319,19 +797,69 @@ function Budgets() {
 
   const getIcon = (category) => {
     const icons = {
-      Food: <Utensils size={18} strokeWidth={1.8} />,
-      Transport: <Car size={18} strokeWidth={1.8} />,
-      Shopping: <ShoppingBag size={18} strokeWidth={1.8} />,
-      Entertainment: <Clapperboard size={18} strokeWidth={1.8} />,
-      Bills: <Receipt size={18} strokeWidth={1.8} />,
-      Health: <HeartPulse size={18} strokeWidth={1.8} />,
-      Education: <GraduationCap size={18} strokeWidth={1.8} />,
-      Other: <CreditCard size={18} strokeWidth={1.8} />,
+      Food: (
+        <Utensils
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Transport: (
+        <Car
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Shopping: (
+        <ShoppingBag
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Entertainment: (
+        <Clapperboard
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Bills: (
+        <Receipt
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Health: (
+        <HeartPulse
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Education: (
+        <GraduationCap
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Other: (
+        <CreditCard
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
     }
 
     return (
       icons[category] || (
-        <CreditCard size={18} strokeWidth={1.8} />
+        <CreditCard
+          size={18}
+          strokeWidth={1.8}
+        />
       )
     )
   }
@@ -370,6 +898,48 @@ function Budgets() {
 
       </div>
 
+      {/* =========================
+          IN-APP FEEDBACK
+      ========================= */}
+
+      {feedback.message && (
+        <div
+          className={`form-message ${
+            feedback.type === 'success'
+              ? 'success-message'
+              : 'error-message'
+          }`}
+          role="status"
+        >
+
+          <span>
+            {feedback.type === 'success'
+              ? '✓'
+              : '⚠'}
+          </span>
+
+          <span>
+            {feedback.message}
+          </span>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFeedback({
+                type: '',
+                message: '',
+              })
+            }
+            aria-label="Dismiss message"
+          >
+            <X
+              size={15}
+              strokeWidth={1.8}
+            />
+          </button>
+
+        </div>
+      )}
 
       {/* =========================
           FORM
@@ -401,11 +971,13 @@ function Budgets() {
               aria-label="Close budget form"
               title="Close"
             >
-              <X size={18} strokeWidth={1.9} />
+              <X
+                size={18}
+                strokeWidth={1.9}
+              />
             </button>
 
           </div>
-
 
           <form onSubmit={handleSubmit}>
 
@@ -457,7 +1029,6 @@ function Budgets() {
 
             </div>
 
-
             <div className="form-row">
 
               <div className="form-group">
@@ -477,7 +1048,6 @@ function Budgets() {
 
               </div>
 
-
               <div className="form-group">
 
                 <label>
@@ -494,7 +1064,6 @@ function Budgets() {
               </div>
 
             </div>
-
 
             <div className="form-actions">
 
@@ -526,6 +1095,71 @@ function Budgets() {
 
       )}
 
+      {/* =========================
+          DELETE CONFIRMATION
+      ========================= */}
+
+      {deleteTarget && (
+        <div
+          className="delete-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="budget-delete-dialog-title"
+        >
+
+          <div className="delete-modal">
+
+            <div className="delete-modal-icon">
+              <Trash2
+                size={20}
+                strokeWidth={1.9}
+              />
+            </div>
+
+            <h2 id="budget-delete-dialog-title">
+              Delete budget?
+            </h2>
+
+            <p>
+              Are you sure you want to delete the{' '}
+              <strong>
+                {deleteTarget.category}
+              </strong>{' '}
+              budget for{' '}
+              {formatMoney(
+                deleteTarget.amount
+              )}
+              ? This action cannot be undone.
+            </p>
+
+            <div className="delete-modal-actions">
+
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="delete-confirm-btn"
+                onClick={confirmDelete}
+              >
+                <Trash2
+                  size={15}
+                  strokeWidth={1.9}
+                />
+                Delete
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
       {/* =========================
           BUDGET LIST
@@ -549,13 +1183,15 @@ function Budgets() {
 
         </div>
 
-
         {loading && (
 
           <div className="no-transactions">
 
             <div>
-              <Clock3 size={25} strokeWidth={1.8} />
+              <Clock3
+                size={25}
+                strokeWidth={1.8}
+              />
             </div>
 
             <h3>
@@ -566,43 +1202,50 @@ function Budgets() {
 
         )}
 
+        {!loading &&
+          budgets.length === 0 && (
 
-        {!loading && budgets.length === 0 && (
+            <div className="no-transactions">
 
-          <div className="no-transactions">
+              <div>
+                <WalletCards
+                  size={25}
+                  strokeWidth={1.8}
+                />
+              </div>
 
-            <div>
-              <WalletCards size={25} strokeWidth={1.8} />
+              <h3>
+                No budgets yet
+              </h3>
+
+              <p>
+                Create your first budget to start tracking your spending.
+              </p>
+
+              <button
+                className="add-transaction-btn"
+                onClick={openAddForm}
+              >
+                <Plus
+                  size={16}
+                  strokeWidth={2}
+                />
+                Create Your First Budget
+              </button>
+
             </div>
 
-            <h3>
-              No budgets yet
-            </h3>
-
-            <p>
-              Create your first budget to start tracking your spending.
-            </p>
-
-            <button
-              className="add-transaction-btn"
-              onClick={openAddForm}
-            >
-              <Plus size={16} strokeWidth={2} />
-              Create Your First Budget
-            </button>
-
-          </div>
-
-        )}
-
+          )}
 
         {!loading &&
           budgets.map((budget) => {
 
-            const spent = getSpent(budget)
+            const spent =
+              getSpent(budget)
 
             const remaining =
-              Number(budget.amount) - spent
+              Number(budget.amount) -
+              spent
 
             const percentage =
               getPercentage(
@@ -651,35 +1294,41 @@ function Budgets() {
 
                   </div>
 
-
                   <div className="budget-actions">
 
                     <button
                       title="Edit budget"
                       aria-label="Edit budget"
                       onClick={() =>
-                        openEditForm(budget)
+                        openEditForm(
+                          budget
+                        )
                       }
                     >
-                      <Pencil size={15} strokeWidth={1.9} />
+                      <Pencil
+                        size={15}
+                        strokeWidth={1.9}
+                      />
                     </button>
 
                     <button
                       title="Delete budget"
                       aria-label="Delete budget"
                       onClick={() =>
-                        handleDelete(
-                          budget.id
+                        requestDelete(
+                          budget
                         )
                       }
                     >
-                      <Trash2 size={15} strokeWidth={1.9} />
+                      <Trash2
+                        size={15}
+                        strokeWidth={1.9}
+                      />
                     </button>
 
                   </div>
 
                 </div>
-
 
                 {/* AMOUNT */}
 
@@ -692,11 +1341,12 @@ function Budgets() {
                     </span>
 
                     <strong>
-                      {formatMoney(spent)}
+                      {formatMoney(
+                        spent
+                      )}
                     </strong>
 
                   </div>
-
 
                   <div>
 
@@ -712,7 +1362,6 @@ function Budgets() {
 
                   </div>
 
-
                   <div>
 
                     <span>
@@ -727,14 +1376,15 @@ function Budgets() {
                       }
                     >
                       {formatMoney(
-                        Math.abs(remaining)
+                        Math.abs(
+                          remaining
+                        )
                       )}
                     </strong>
 
                   </div>
 
                 </div>
-
 
                 {/* PROGRESS */}
 
@@ -757,7 +1407,6 @@ function Budgets() {
 
                 </div>
 
-
                 {/* STATUS */}
 
                 <div
@@ -766,21 +1415,30 @@ function Budgets() {
 
                   {status === 'safe' && (
                     <>
-                      <CheckCircle2 size={15} strokeWidth={1.9} />
+                      <CheckCircle2
+                        size={15}
+                        strokeWidth={1.9}
+                      />
                       You're within your budget.
                     </>
                   )}
 
                   {status === 'warning' && (
                     <>
-                      <TriangleAlert size={15} strokeWidth={1.9} />
+                      <TriangleAlert
+                        size={15}
+                        strokeWidth={1.9}
+                      />
                       You've used 80% or more of your budget.
                     </>
                   )}
 
                   {status === 'exceeded' && (
                     <>
-                      <OctagonAlert size={15} strokeWidth={1.9} />
+                      <OctagonAlert
+                        size={15}
+                        strokeWidth={1.9}
+                      />
                       You've exceeded this budget.
                     </>
                   )}

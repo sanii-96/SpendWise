@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+
 import {
   Search,
   Plus,
@@ -21,12 +23,22 @@ import {
 } from 'lucide-react'
 
 function Transactions() {
+  const [searchParams, setSearchParams] =
+    useSearchParams()
+
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('All')
+  const [dateFilter, setDateFilter] = useState('All')
   const [transactions, setTransactions] = useState([])
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const [feedback, setFeedback] = useState({
+    type: '',
+    message: '',
+  })
 
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -37,7 +49,9 @@ function Transactions() {
     amount: '',
     category: 'Food',
     type: 'Expense',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date()
+      .toISOString()
+      .split('T')[0],
   })
 
   // =========================
@@ -48,6 +62,31 @@ function Transactions() {
     fetchTransactions()
   }, [])
 
+  // =========================
+  // OPEN FORM FROM DASHBOARD
+  // =========================
+
+  useEffect(() => {
+    if (searchParams.get('add') === 'true') {
+      setEditingId(null)
+
+      setFormData({
+        name: '',
+        amount: '',
+        category: 'Food',
+        type: 'Expense',
+        date: new Date()
+          .toISOString()
+          .split('T')[0],
+      })
+
+      setShowForm(true)
+
+      // Remove ?add=true from the URL
+      setSearchParams({})
+    }
+  }, [searchParams, setSearchParams])
+
   const fetchTransactions = async () => {
     setLoading(true)
     setError('')
@@ -57,7 +96,10 @@ function Transactions() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      setError('You must be logged in to view transactions.')
+      setError(
+        'You must be logged in to view transactions.'
+      )
+
       setLoading(false)
       return
     }
@@ -69,7 +111,11 @@ function Transactions() {
       .order('date', { ascending: false })
 
     if (error) {
-      console.error('Error fetching transactions:', error)
+      console.error(
+        'Error fetching transactions:',
+        error
+      )
+
       setError(error.message)
       setLoading(false)
       return
@@ -78,6 +124,23 @@ function Transactions() {
     setTransactions(data || [])
     setLoading(false)
   }
+
+  // =========================
+  // AUTO-DISMISS FEEDBACK
+  // =========================
+
+  useEffect(() => {
+    if (!feedback.message) return
+
+    const timer = setTimeout(() => {
+      setFeedback({
+        type: '',
+        message: '',
+      })
+    }, 3500)
+
+    return () => clearTimeout(timer)
+  }, [feedback.message])
 
   // =========================
   // FORM CHANGE
@@ -102,7 +165,9 @@ function Transactions() {
       amount: '',
       category: 'Food',
       type: 'Expense',
-      date: new Date().toISOString().split('T')[0],
+      date: new Date()
+        .toISOString()
+        .split('T')[0],
     })
 
     setEditingId(null)
@@ -121,7 +186,9 @@ function Transactions() {
       amount: '',
       category: 'Food',
       type: 'Expense',
-      date: new Date().toISOString().split('T')[0],
+      date: new Date()
+        .toISOString()
+        .split('T')[0],
     })
 
     setShowForm(true)
@@ -135,17 +202,20 @@ function Transactions() {
     e.preventDefault()
 
     if (!formData.name.trim()) {
-      alert('Please enter a transaction name.')
+      setFeedback({ type: 'error', message: 'Please enter a transaction name.' })
       return
     }
 
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      alert('Please enter a valid amount.')
+    if (
+      !formData.amount ||
+      Number(formData.amount) <= 0
+    ) {
+      setFeedback({ type: 'error', message: 'Please enter a valid amount.' })
       return
     }
 
     if (!formData.date) {
-      alert('Please select a date.')
+      setFeedback({ type: 'error', message: 'Please select a date.' })
       return
     }
 
@@ -156,7 +226,7 @@ function Transactions() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setFeedback({ type: 'error', message: 'Your session has expired. Please log in again.' })
       setSaving(false)
       return
     }
@@ -177,8 +247,12 @@ function Transactions() {
       .single()
 
     if (error) {
-      console.error('Error adding transaction:', error)
-      alert(error.message)
+      console.error(
+        'Error adding transaction:',
+        error
+      )
+
+      setFeedback({ type: 'error', message: error.message || 'Something went wrong. Please try again.' })
       setSaving(false)
       return
     }
@@ -190,6 +264,11 @@ function Transactions() {
 
     resetForm()
     setSaving(false)
+
+    setFeedback({
+      type: 'success',
+      message: 'Transaction added successfully.',
+    })
   }
 
   // =========================
@@ -202,9 +281,11 @@ function Transactions() {
     setFormData({
       name: transaction.name || '',
       amount: transaction.amount || '',
-      category: transaction.category || 'Food',
+      category:
+        transaction.category || 'Food',
       type:
-        transaction.type?.toLowerCase() === 'income'
+        transaction.type?.toLowerCase() ===
+        'income'
           ? 'Income'
           : 'Expense',
       date: transaction.date || '',
@@ -221,22 +302,28 @@ function Transactions() {
     e.preventDefault()
 
     if (!formData.name.trim()) {
-      alert('Please enter a transaction name.')
+      setFeedback({ type: 'error', message: 'Please enter a transaction name.' })
       return
     }
 
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      alert('Please enter a valid amount.')
+    if (
+      !formData.amount ||
+      Number(formData.amount) <= 0
+    ) {
+      setFeedback({ type: 'error', message: 'Please enter a valid amount.' })
       return
     }
 
     if (!formData.date) {
-      alert('Please select a date.')
+      setFeedback({ type: 'error', message: 'Please select a date.' })
       return
     }
 
     if (!editingId) {
-      alert('No transaction selected for editing.')
+      setFeedback({
+        type: 'error',
+        message: 'No transaction selected for editing.',
+      })
       return
     }
 
@@ -247,7 +334,7 @@ function Transactions() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setFeedback({ type: 'error', message: 'Your session has expired. Please log in again.' })
       setSaving(false)
       return
     }
@@ -267,8 +354,12 @@ function Transactions() {
       .single()
 
     if (error) {
-      console.error('Error updating transaction:', error)
-      alert(error.message)
+      console.error(
+        'Error updating transaction:',
+        error
+      )
+
+      setFeedback({ type: 'error', message: error.message || 'Something went wrong. Please try again.' })
       setSaving(false)
       return
     }
@@ -283,6 +374,11 @@ function Transactions() {
 
     resetForm()
     setSaving(false)
+
+    setFeedback({
+      type: 'success',
+      message: 'Transaction updated successfully.',
+    })
   }
 
   // =========================
@@ -303,7 +399,7 @@ function Transactions() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('You must be logged in.')
+      setFeedback({ type: 'error', message: 'Your session has expired. Please log in again.' })
       return
     }
 
@@ -314,25 +410,32 @@ function Transactions() {
       .eq('user_id', user.id)
 
     if (error) {
-      alert(error.message)
+      setFeedback({ type: 'error', message: error.message || 'Something went wrong. Please try again.' })
       return
     }
 
     setTransactions((current) =>
       current.filter(
-        (transaction) => transaction.id !== id
+        (transaction) =>
+          transaction.id !== id
       )
     )
+
+    setFeedback({
+      type: 'success',
+      message: 'Transaction deleted successfully.',
+    })
   }
 
   // =========================
   // FILTER + SEARCH
   // =========================
 
-  const filteredTransactions = transactions.filter(
-    (transaction) => {
+  const filteredTransactions =
+    transactions.filter((transaction) => {
       const transactionType =
-        transaction.type?.toLowerCase() === 'income'
+        transaction.type?.toLowerCase() ===
+        'income'
           ? 'Income'
           : 'Expense'
 
@@ -345,9 +448,54 @@ function Transactions() {
           ?.toLowerCase()
           .includes(search.toLowerCase())
 
-      return matchesFilter && matchesSearch
-    }
-  )
+      const matchesCategory =
+        categoryFilter === 'All' ||
+        transaction.category === categoryFilter
+
+      const transactionDate = new Date(
+        `${transaction.date}T00:00:00`
+      )
+
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const startOfWeek = new Date(today)
+      const day = startOfWeek.getDay()
+      const daysFromMonday =
+        day === 0 ? 6 : day - 1
+      startOfWeek.setDate(
+        startOfWeek.getDate() - daysFromMonday
+      )
+
+      const startOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      )
+
+      let matchesDate = true
+
+      if (dateFilter === 'Today') {
+        matchesDate =
+          transactionDate.getTime() ===
+          today.getTime()
+      } else if (dateFilter === 'This Week') {
+        matchesDate =
+          transactionDate >= startOfWeek &&
+          transactionDate <= today
+      } else if (dateFilter === 'This Month') {
+        matchesDate =
+          transactionDate >= startOfMonth &&
+          transactionDate <= today
+      }
+
+      return (
+        matchesFilter &&
+        matchesSearch &&
+        matchesCategory &&
+        matchesDate
+      )
+    })
 
   // =========================
   // TOTALS
@@ -356,7 +504,8 @@ function Transactions() {
   const totalIncome = transactions
     .filter(
       (transaction) =>
-        transaction.type?.toLowerCase() === 'income'
+        transaction.type?.toLowerCase() ===
+        'income'
     )
     .reduce(
       (total, transaction) =>
@@ -367,7 +516,8 @@ function Transactions() {
   const totalExpenses = transactions
     .filter(
       (transaction) =>
-        transaction.type?.toLowerCase() === 'expense'
+        transaction.type?.toLowerCase() ===
+        'expense'
     )
     .reduce(
       (total, transaction) =>
@@ -382,11 +532,14 @@ function Transactions() {
   const formatDate = (date) => {
     if (!date) return '-'
 
-    return new Date(date).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })
+    return new Date(date).toLocaleDateString(
+      'en-IN',
+      {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }
+    )
   }
 
   // =========================
@@ -395,20 +548,76 @@ function Transactions() {
 
   const getIcon = (category) => {
     const icons = {
-      Food: <Utensils size={18} strokeWidth={1.8} />,
-      Income: <TrendingUp size={18} strokeWidth={1.8} />,
-      Transport: <Car size={18} strokeWidth={1.8} />,
-      Entertainment: <Clapperboard size={18} strokeWidth={1.8} />,
-      Shopping: <ShoppingBag size={18} strokeWidth={1.8} />,
-      Bills: <Receipt size={18} strokeWidth={1.8} />,
-      Health: <HeartPulse size={18} strokeWidth={1.8} />,
-      Education: <GraduationCap size={18} strokeWidth={1.8} />,
-      Other: <CreditCard size={18} strokeWidth={1.8} />,
+      Food: (
+        <Utensils
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Income: (
+        <TrendingUp
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Transport: (
+        <Car
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Entertainment: (
+        <Clapperboard
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Shopping: (
+        <ShoppingBag
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Bills: (
+        <Receipt
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Health: (
+        <HeartPulse
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Education: (
+        <GraduationCap
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
+
+      Other: (
+        <CreditCard
+          size={18}
+          strokeWidth={1.8}
+        />
+      ),
     }
 
     return (
       icons[category] || (
-        <CreditCard size={18} strokeWidth={1.8} />
+        <CreditCard
+          size={18}
+          strokeWidth={1.8}
+        />
       )
     )
   }
@@ -442,11 +651,54 @@ function Transactions() {
           className="add-transaction-btn"
           onClick={openAddForm}
         >
-          <Plus size={16} strokeWidth={1.9} /> Add Transaction
+          <Plus
+            size={16}
+            strokeWidth={1.9}
+          />
+
+          Add Transaction
         </button>
 
       </div>
 
+      {/* =========================
+          IN-APP FEEDBACK
+      ========================= */}
+
+      {feedback.message && (
+        <div
+          className={`form-message ${
+            feedback.type === 'success'
+              ? 'success-message'
+              : 'error-message'
+          }`}
+          role="status"
+        >
+          <span>
+            {feedback.type === 'success' ? '✓' : '⚠'}
+          </span>
+
+          <span>
+            {feedback.message}
+          </span>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFeedback({
+                type: '',
+                message: '',
+              })
+            }
+            aria-label="Dismiss message"
+          >
+            <X
+              size={15}
+              strokeWidth={1.8}
+            />
+          </button>
+        </div>
+      )}
 
       {/* =========================
           ADD / EDIT FORM
@@ -478,16 +730,13 @@ function Transactions() {
               type="button"
               onClick={resetForm}
             >
-              <X size={18} strokeWidth={1.9} />
+              <X
+                size={18}
+                strokeWidth={1.9}
+              />
             </button>
 
           </div>
-
-
-          {/* IMPORTANT:
-              The form directly chooses
-              UPDATE or INSERT.
-          */}
 
           <form
             onSubmit={
@@ -515,7 +764,6 @@ function Transactions() {
 
             </div>
 
-
             {/* AMOUNT + TYPE */}
 
             <div className="form-row">
@@ -537,7 +785,6 @@ function Transactions() {
                 />
 
               </div>
-
 
               <div className="form-group">
 
@@ -564,7 +811,6 @@ function Transactions() {
               </div>
 
             </div>
-
 
             {/* CATEGORY + DATE */}
 
@@ -618,7 +864,6 @@ function Transactions() {
 
               </div>
 
-
               <div className="form-group">
 
                 <label>
@@ -635,7 +880,6 @@ function Transactions() {
               </div>
 
             </div>
-
 
             {/* FORM BUTTONS */}
 
@@ -669,7 +913,6 @@ function Transactions() {
 
       )}
 
-
       {/* =========================
           SUMMARY
       ========================= */}
@@ -688,7 +931,6 @@ function Transactions() {
 
         </div>
 
-
         <div>
 
           <span>
@@ -696,11 +938,13 @@ function Transactions() {
           </span>
 
           <strong className="income-text">
-            ₹{totalIncome.toLocaleString('en-IN')}
+            ₹
+            {totalIncome.toLocaleString(
+              'en-IN'
+            )}
           </strong>
 
         </div>
-
 
         <div>
 
@@ -709,13 +953,15 @@ function Transactions() {
           </span>
 
           <strong className="expense-text">
-            ₹{totalExpenses.toLocaleString('en-IN')}
+            ₹
+            {totalExpenses.toLocaleString(
+              'en-IN'
+            )}
           </strong>
 
         </div>
 
       </div>
-
 
       {/* =========================
           TRANSACTIONS CONTAINER
@@ -730,7 +976,12 @@ function Transactions() {
           <div className="search-box">
 
             <span className="search-icon">
-              <Search size={16} strokeWidth={1.9} />
+
+              <Search
+                size={16}
+                strokeWidth={1.9}
+              />
+
             </span>
 
             <input
@@ -744,33 +995,66 @@ function Transactions() {
 
           </div>
 
-
           <div className="filter-buttons">
 
-            {['All', 'Income', 'Expense'].map(
-              (item) => (
+            {[
+              'All',
+              'Income',
+              'Expense',
+            ].map((item) => (
 
-                <button
-                  key={item}
-                  className={
-                    filter === item
-                      ? 'filter-active'
-                      : ''
-                  }
-                  onClick={() =>
-                    setFilter(item)
-                  }
-                >
-                  {item}
-                </button>
+              <button
+                key={item}
+                className={
+                  filter === item
+                    ? 'filter-active'
+                    : ''
+                }
+                onClick={() =>
+                  setFilter(item)
+                }
+              >
+                {item}
+              </button>
 
-              )
-            )}
+            ))}
 
           </div>
 
-        </div>
 
+          <select
+            className="transaction-category-filter"
+            value={categoryFilter}
+            onChange={(e) =>
+              setCategoryFilter(e.target.value)
+            }
+          >
+            <option value="All">All Categories</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills">Bills</option>
+            <option value="Health">Health</option>
+            <option value="Education">Education</option>
+            <option value="Other">Other</option>
+          </select>
+
+
+          <select
+            className="transaction-date-filter"
+            value={dateFilter}
+            onChange={(e) =>
+              setDateFilter(e.target.value)
+            }
+          >
+            <option value="All">All Dates</option>
+            <option value="Today">Today</option>
+            <option value="This Week">This Week</option>
+            <option value="This Month">This Month</option>
+          </select>
+
+        </div>
 
         {/* TABLE */}
 
@@ -798,7 +1082,6 @@ function Transactions() {
 
           </div>
 
-
           {/* LOADING */}
 
           {loading && (
@@ -806,7 +1089,12 @@ function Transactions() {
             <div className="no-transactions">
 
               <div>
-                <Clock3 size={24} strokeWidth={1.8} />
+
+                <Clock3
+                  size={24}
+                  strokeWidth={1.8}
+                />
+
               </div>
 
               <h3>
@@ -821,7 +1109,6 @@ function Transactions() {
 
           )}
 
-
           {/* ERROR */}
 
           {!loading && error && (
@@ -829,7 +1116,12 @@ function Transactions() {
             <div className="no-transactions">
 
               <div>
-                <AlertCircle size={24} strokeWidth={1.8} />
+
+                <AlertCircle
+                  size={24}
+                  strokeWidth={1.8}
+                />
+
               </div>
 
               <h3>
@@ -843,7 +1135,6 @@ function Transactions() {
             </div>
 
           )}
-
 
           {/* TRANSACTIONS */}
 
@@ -868,9 +1159,11 @@ function Transactions() {
                     <div className="table-transaction">
 
                       <div className="table-icon">
+
                         {getIcon(
                           transaction.category
                         )}
+
                       </div>
 
                       <div>
@@ -889,22 +1182,21 @@ function Transactions() {
 
                     </div>
 
-
                     {/* CATEGORY */}
 
                     <span className="category-badge">
                       {transaction.category}
                     </span>
 
-
                     {/* DATE */}
 
                     <span className="transaction-date">
+
                       {formatDate(
                         transaction.date
                       )}
-                    </span>
 
+                    </span>
 
                     {/* AMOUNT */}
 
@@ -915,13 +1207,19 @@ function Transactions() {
                           : 'amount-expense'
                       }
                     >
-                      {isIncome ? '+' : '-'}
+
+                      {isIncome
+                        ? '+'
+                        : '-'}
+
                       ₹
                       {Number(
                         transaction.amount
-                      ).toLocaleString('en-IN')}
-                    </strong>
+                      ).toLocaleString(
+                        'en-IN'
+                      )}
 
+                    </strong>
 
                     {/* ACTIONS */}
 
@@ -936,9 +1234,13 @@ function Transactions() {
                           )
                         }
                       >
-                        <Pencil size={16} strokeWidth={1.8} />
-                      </button>
 
+                        <Pencil
+                          size={16}
+                          strokeWidth={1.8}
+                        />
+
+                      </button>
 
                       <button
                         type="button"
@@ -949,7 +1251,12 @@ function Transactions() {
                           )
                         }
                       >
-                        <Trash2 size={16} strokeWidth={1.8} />
+
+                        <Trash2
+                          size={16}
+                          strokeWidth={1.8}
+                        />
+
                       </button>
 
                     </div>
@@ -960,17 +1267,22 @@ function Transactions() {
               }
             )}
 
-
           {/* EMPTY */}
 
           {!loading &&
             !error &&
-            filteredTransactions.length === 0 && (
+            filteredTransactions.length ===
+              0 && (
 
               <div className="no-transactions">
 
                 <div>
-                  <FileSearch size={24} strokeWidth={1.8} />
+
+                  <FileSearch
+                    size={24}
+                    strokeWidth={1.8}
+                  />
+
                 </div>
 
                 <h3>

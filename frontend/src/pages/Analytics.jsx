@@ -21,6 +21,19 @@ import {
   BarChart3,
 } from 'lucide-react'
 
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts'
+
 function Analytics() {
   const navigate = useNavigate()
 
@@ -105,6 +118,44 @@ function Analytics() {
     income > 0
       ? (savings / income) * 100
       : 0
+
+  const topCategoryPreview = (() => {
+    const expenseItems = transactions
+      .filter(
+        (t) =>
+          t.type?.toLowerCase() === 'expense'
+      )
+
+    const totals = {}
+
+    expenseItems.forEach((t) => {
+      const category = t.category || 'Other'
+      totals[category] =
+        (totals[category] || 0) +
+        Number(t.amount)
+    })
+
+    const top = Object.entries(totals)
+      .sort((a, b) => b[1] - a[1])[0]
+
+    return top
+      ? {
+          category: top[0],
+          amount: top[1],
+          share:
+            expenses > 0
+              ? (top[1] / expenses) * 100
+              : 0,
+        }
+      : null
+  })()
+
+  const insightMessage =
+    expenses === 0
+      ? 'Add an expense to start discovering your spending patterns.'
+      : topCategoryPreview
+        ? `${topCategoryPreview.category} is your largest spending category at ${topCategoryPreview.share.toFixed(1)}% of total expenses.`
+        : 'Keep tracking transactions to build useful spending insights.'
 
   // =========================
   // CATEGORIES
@@ -227,6 +278,30 @@ function Analytics() {
     ),
     1
   )
+
+  // =========================
+  // CHART DATA
+  // =========================
+
+  const categoryChartData = categoryTotals
+    .filter((item) => item.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+
+  const incomeExpenseData = [
+    { name: 'Income', amount: income },
+    { name: 'Expenses', amount: expenses },
+  ]
+
+  const chartColors = [
+    '#38bdf8',
+    '#818cf8',
+    '#a78bfa',
+    '#c084fc',
+    '#f472b6',
+    '#fb7185',
+    '#f59e0b',
+    '#34d399',
+  ]
 
   // =========================
   // FORMAT MONEY
@@ -463,8 +538,236 @@ function Analytics() {
 
           </div>
 
+          {/* =========================
+              QUICK INSIGHT
+          ========================= */}
+
+          <div className="transactions-container analytics-insight-card">
+
+            <div className="analytics-title-row">
+
+              <div className="analytics-title-icon">
+                <TrendingUp
+                  size={19}
+                  strokeWidth={1.8}
+                />
+              </div>
+
+              <div>
+                <h2>
+                  At a glance
+                </h2>
+
+                <p>
+                  A quick takeaway from your spending data.
+                </p>
+              </div>
+
+            </div>
+
+            <div className="analytics-insight-content">
+
+              <strong>
+                {insightMessage}
+              </strong>
+
+              <button
+                className="view-all-btn"
+                onClick={() =>
+                  navigate('/transactions')
+                }
+              >
+                Review transactions
+                <ArrowRight
+                  size={14}
+                  strokeWidth={1.8}
+                />
+              </button>
+
+            </div>
+
+          </div>
+
 
           {/* =========================
+              CHARTS
+          ========================= */}
+
+          <div className="analytics-charts-grid">
+
+            {/* SPENDING DONUT */}
+
+            <div className="transactions-container analytics-chart-card">
+
+              <div className="analytics-chart-header">
+                <div>
+                  <h2>Spending Breakdown</h2>
+                  <p>See how your expenses are distributed by category.</p>
+                </div>
+
+                <div className="analytics-chart-total">
+                  <span>TOTAL</span>
+                  <strong>{formatMoney(expenses)}</strong>
+                </div>
+              </div>
+
+              {categoryChartData.length > 0 ? (
+                <div className="analytics-donut-layout">
+                  <div className="analytics-donut">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={categoryChartData}
+                          dataKey="amount"
+                          nameKey="category"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={68}
+                          outerRadius={96}
+                          paddingAngle={3}
+                          stroke="none"
+                        >
+                          {categoryChartData.map((entry, index) => (
+                            <Cell
+                              key={entry.category}
+                              fill={chartColors[index % chartColors.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => [formatMoney(value), 'Spent']}
+                          contentStyle={{
+                            background: '#0f172a',
+                            border: '1px solid rgba(148,163,184,0.16)',
+                            borderRadius: '8px',
+                            color: '#e2e8f0',
+                            fontSize: '12px',
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+
+                    <div className="analytics-donut-center">
+                      <span>Total spent</span>
+                      <strong>{formatMoney(expenses)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="analytics-chart-legend">
+                    {categoryChartData.map((item, index) => {
+                      const share = expenses > 0
+                        ? (item.amount / expenses) * 100
+                        : 0
+
+                      return (
+                        <div className="analytics-legend-item" key={item.category}>
+                          <div className="analytics-legend-label">
+                            <span
+                              className="analytics-legend-dot"
+                              style={{
+                                background: chartColors[index % chartColors.length],
+                              }}
+                            />
+                            <span>{item.category}</span>
+                          </div>
+                          <strong>{share.toFixed(1)}%</strong>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="analytics-chart-empty">
+                  <BarChart3 size={28} strokeWidth={1.8} />
+                  <p>No expense data yet.</p>
+                </div>
+              )}
+
+            </div>
+
+
+            {/* INCOME VS EXPENSE */}
+
+            <div className="transactions-container analytics-chart-card">
+
+              <div className="analytics-chart-header">
+                <div>
+                  <h2>Income vs Expense</h2>
+                  <p>Compare money received with money spent.</p>
+                </div>
+
+                <div className="analytics-chart-balance">
+                  <span>SAVINGS</span>
+                  <strong>{formatMoney(savings)}</strong>
+                </div>
+              </div>
+
+              <div className="analytics-bar-chart">
+                <ResponsiveContainer width="100%" height={285}>
+                  <BarChart
+                    data={incomeExpenseData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(148,163,184,0.08)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: '#64748b', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fill: '#64748b', fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(value) => `₹${value >= 1000 ? `${value / 1000}k` : value}`}
+                    />
+                    <Tooltip
+                      formatter={(value) => [formatMoney(value), 'Amount']}
+                      contentStyle={{
+                        background: '#0f172a',
+                        border: '1px solid rgba(148,163,184,0.16)',
+                        borderRadius: '8px',
+                        color: '#e2e8f0',
+                        fontSize: '12px',
+                      }}
+                    />
+                    <Bar
+                      dataKey="amount"
+                      radius={[7, 7, 0, 0]}
+                      barSize={58}
+                    >
+                      {incomeExpenseData.map((entry) => (
+                        <Cell
+                          key={entry.name}
+                          fill={entry.name === 'Income' ? '#38bdf8' : '#f43f5e'}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="analytics-chart-stats">
+                <div>
+                  <span>Income</span>
+                  <strong className="income-text">{formatMoney(income)}</strong>
+                </div>
+                <div>
+                  <span>Expenses</span>
+                  <strong className="expense-text">{formatMoney(expenses)}</strong>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+
+                    {/* =========================
               SPENDING BY CATEGORY
           ========================= */}
 
