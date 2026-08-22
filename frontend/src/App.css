@@ -9197,3 +9197,569 @@ textarea:focus {
     width: 100% !important;
   }
 }
+
+
+
+/* =========================================================
+   REGISTER PAGE - NEW LEFT SHOWCASE
+   ========================================================= */
+
+.auth-showcase {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  padding: 48px 48px 42px;
+
+  box-sizing: border-box;
+
+  background: #07070c;
+
+  overflow: hidden;
+}
+
+
+/* subtle purple glow */
+
+.auth-showcase::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  left: -180px;
+  top: 30%;
+
+  background: rgba(124, 58, 237, 0.08);
+
+  filter: blur(110px);
+
+  pointer-events: none;
+}
+
+
+/* BRAND */
+
+.showcase-brand {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  color: #f8fafc;
+
+  font-size: 24px;
+  font-weight: 750;
+}
+
+.showcase-brand .brand-mark {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: linear-gradient(
+    135deg,
+    #8b5cf6,
+    #6d28d9
+  );
+
+  color: white;
+
+  font-size: 25px;
+  font-weight: 800;
+
+  box-shadow:
+    0 12px 35px rgba(124, 58, 237, 0.28);
+}
+
+
+/* MAIN CONTENT */
+
+.showcase-content {
+  position: relative;
+  z-index: 2;
+
+  width: min(590px, 100%);
+
+  margin: auto 0;
+
+  padding: 55px 0;
+}
+
+
+/* EYEBROW */
+
+.showcase-content .eyebrow {
+  margin: 0 0 20px;
+
+  color: #a78bfa;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+}
+
+
+/* HEADING */
+
+.showcase-content h1 {
+  margin: 0;
+
+  color: #f8fafc;
+
+  font-size: clamp(48px, 5vw, 68px);
+
+  font-weight: 800;
+
+  line-height: 1.02;
+
+  letter-spacing: -0.045em;
+}
+
+.showcase-content h1 span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #9b7af7;
+}
+
+
+/* DESCRIPTION */
+
+.showcase-description {
+  max-width: 530px;
+
+  margin: 25px 0 0;
+
+  color: #858da1;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+/* FEATURES */
+
+.showcase-features {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 38px;
+}
+
+
+/* FEATURE CARD */
+
+.showcase-feature {
+  min-height: 128px;
+
+  padding: 17px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(148, 163, 184, 0.10);
+
+  border-radius: 13px;
+
+  background: rgba(15, 15, 23, 0.72);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.showcase-feature:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(139, 92, 246, 0.28);
+
+  background: rgba(22, 18, 35, 0.9);
+}
+
+
+/* ICON */
+
+.feature-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  border-radius: 9px;
+
+  background: rgba(139, 92, 246, 0.10);
+
+  border: 1px solid rgba(139, 92, 246, 0.18);
+
+  color: #a78bfa;
+
+  font-size: 15px;
+
+  font-weight: 700;
+}
+
+
+/* FEATURE TEXT */
+
+.feature-content h3 {
+  margin: 0 0 6px;
+
+  color: #e9edf5;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.feature-content p {
+  margin: 0;
+
+  color: #697386;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* FOOTER */
+
+.showcase-footer {
+  position: relative;
+  z-index: 2;
+
+  margin: 0;
+
+  color: #4f586b;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .auth-showcase {
+    padding: 40px 32px;
+  }
+
+  .showcase-content {
+    padding: 50px 0;
+  }
+
+  .showcase-features {
+    grid-template-columns: 1fr;
+  }
+
+  .showcase-feature {
+    min-height: auto;
+
+    display: flex;
+
+    gap: 13px;
+  }
+
+  .feature-icon {
+    flex-shrink: 0;
+
+    margin-bottom: 0;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .auth-showcase {
+    min-height: auto;
+
+    padding: 28px 22px;
+  }
+
+  .showcase-content {
+    padding: 55px 0 40px;
+  }
+
+  .showcase-content h1 {
+    font-size: 44px;
+  }
+
+  .showcase-description {
+    font-size: 14px;
+  }
+
+  .showcase-footer {
+    display: none;
+  }
+
+}
+
+
+
+/* =========================================================
+   REGISTER LEFT SIDE — FINAL SPACING FIX
+   ========================================================= */
+
+.auth-showcase {
+  padding: 48px 48px 35px !important;
+}
+
+
+/* Move the main content upward */
+
+.showcase-content {
+  width: min(560px, 100%) !important;
+
+  margin: 0 !important;
+
+  padding: 105px 0 35px !important;
+}
+
+
+/* Smaller, cleaner heading */
+
+.showcase-content h1 {
+  font-size: clamp(46px, 4.4vw, 60px) !important;
+
+  line-height: 1.02 !important;
+
+  letter-spacing: -0.04em !important;
+}
+
+
+/* Slightly tighter description */
+
+.showcase-description {
+  max-width: 540px !important;
+
+  margin-top: 22px !important;
+
+  font-size: 14px !important;
+
+  line-height: 1.65 !important;
+}
+
+
+/* Bring feature cards closer */
+
+.showcase-features {
+  margin-top: 28px !important;
+
+  gap: 9px !important;
+}
+
+
+/* Make cards slightly shorter */
+
+.showcase-feature {
+  min-height: 112px !important;
+
+  padding: 15px !important;
+}
+
+
+/* Slightly smaller feature text */
+
+.feature-content h3 {
+  font-size: 12px !important;
+}
+
+.feature-content p {
+  font-size: 10.5px !important;
+  line-height: 1.45 !important;
+}
+
+
+/* Footer */
+
+.showcase-footer {
+  margin-top: auto !important;
+}
+
+
+/* =========================================================
+   LARGE SCREENS
+   ========================================================= */
+
+@media (min-width: 1200px) {
+
+  .showcase-content {
+    padding-top: 90px !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 58px !important;
+  }
+
+}
+
+
+/* =========================================================
+   LAPTOP
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+  .showcase-content {
+    padding-top: 75px !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 52px !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .showcase-content {
+    padding-top: 55px !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 42px !important;
+  }
+
+}
+
+
+/* =========================================================
+   REGISTER PAGE — FINAL LEFT SIDE BALANCE
+   ========================================================= */
+
+.auth-showcase {
+  padding: 48px 48px 35px !important;
+  justify-content: flex-start !important;
+}
+
+/* Proper spacing between logo and main content */
+.showcase-content {
+  width: min(560px, 100%) !important;
+  margin: 78px 0 0 !important;
+  padding: 0 !important;
+}
+
+/* Heading */
+.showcase-content h1 {
+  font-size: clamp(48px, 4.5vw, 62px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.045em !important;
+}
+
+/* Description */
+.showcase-description {
+  max-width: 560px !important;
+  margin-top: 24px !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+}
+
+/* Feature section */
+.showcase-features {
+  margin-top: 32px !important;
+  gap: 12px !important;
+}
+
+/* Feature cards */
+.showcase-feature {
+  min-height: 110px !important;
+  padding: 16px !important;
+}
+
+/* Footer stays at bottom */
+.showcase-footer {
+  margin-top: auto !important;
+}
+
+
+/* =========================================================
+   LARGE SCREEN
+   ========================================================= */
+
+@media (min-width: 1200px) {
+
+  .showcase-content {
+    margin-top: 82px !important;
+    padding: 0 !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 60px !important;
+  }
+}
+
+
+/* =========================================================
+   LAPTOP
+   ========================================================= */
+
+@media (max-width: 1100px) and (min-width: 701px) {
+
+  .showcase-content {
+    margin-top: 65px !important;
+    padding: 0 !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 52px !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .auth-showcase {
+    padding: 28px 22px !important;
+  }
+
+  .showcase-content {
+    margin-top: 55px !important;
+    padding: 0 !important;
+  }
+
+  .showcase-content h1 {
+    font-size: 42px !important;
+  }
+}

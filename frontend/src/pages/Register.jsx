@@ -4,7 +4,6 @@ import { supabase } from '../supabaseClient'
 
 import {
   ArrowRight,
-  TrendingUp,
   LockKeyhole,
   Mail,
   UserRound,
@@ -82,6 +81,8 @@ function Register() {
 
       <div className="auth-showcase">
 
+        {/* BRAND */}
+
         <div className="showcase-brand">
 
           <div className="brand-mark">
@@ -95,92 +96,95 @@ function Register() {
         </div>
 
 
+        {/* SHOWCASE CONTENT */}
+
         <div className="showcase-content">
 
           <p className="eyebrow">
-            START YOUR FINANCIAL JOURNEY
+            PERSONAL FINANCE, SIMPLIFIED
           </p>
 
           <h1>
-            Build better
-            <span> money habits.</span>
+            Smart finance,
+            <span> made simple.</span>
           </h1>
 
           <p className="showcase-description">
-            Create your SpendWise account and get a clearer
-            picture of your income, expenses, budgets and goals.
+            Everything you need to understand your spending,
+            manage your budgets, and make better financial
+            decisions.
           </p>
 
 
-          {/* FINANCE PREVIEW */}
+          {/* FEATURES */}
 
-          <div className="finance-card">
+          <div className="showcase-features">
 
-            <div className="finance-top">
+            {/* FEATURE 1 */}
 
-              <div>
+            <div className="showcase-feature">
 
-                <p className="finance-label">
-                  Monthly savings
+              <div className="feature-icon">
+                <span>↗</span>
+              </div>
+
+              <div className="feature-content">
+
+                <h3>
+                  Track your spending
+                </h3>
+
+                <p>
+                  See exactly where your money goes.
                 </p>
 
-                <h2>
-                  ₹12,450
-                </h2>
-
               </div>
 
-              <div className="finance-growth">
+            </div>
 
-                <TrendingUp
-                  size={14}
-                  strokeWidth={1.9}
-                />
 
-                +18.6%
+            {/* FEATURE 2 */}
+
+            <div className="showcase-feature">
+
+              <div className="feature-icon">
+                <span>◎</span>
+              </div>
+
+              <div className="feature-content">
+
+                <h3>
+                  Manage your budgets
+                </h3>
+
+                <p>
+                  Set limits and stay ahead of your expenses.
+                </p>
 
               </div>
 
             </div>
 
 
-            <div className="finance-chart">
+            {/* FEATURE 3 */}
 
-              <div className="chart-line"></div>
+            <div className="showcase-feature">
 
-            </div>
-
-
-            <div className="finance-bottom">
-
-              <div>
-                <span>
-                  Income
-                </span>
-
-                <strong>
-                  ₹40,000
-                </strong>
+              <div className="feature-icon">
+                <span>✓</span>
               </div>
 
-              <div>
-                <span>
-                  Expenses
-                </span>
+              <div className="feature-content">
 
-                <strong>
-                  ₹27,550
-                </strong>
-              </div>
+                <h3>
+                  Understand your money
+                </h3>
 
-              <div>
-                <span>
-                  Saved
-                </span>
+                <p>
+                  Turn your financial activity into clear
+                  insights.
+                </p>
 
-                <strong>
-                  31%
-                </strong>
               </div>
 
             </div>
@@ -189,6 +193,8 @@ function Register() {
 
         </div>
 
+
+        {/* FOOTER */}
 
         <p className="showcase-footer">
           Your money deserves a smarter system.
@@ -249,9 +255,7 @@ function Register() {
           </div>
 
 
-          {/* =========================
-              ERROR
-          ========================= */}
+          {/* ERROR */}
 
           {error && (
 
@@ -271,9 +275,7 @@ function Register() {
           )}
 
 
-          {/* =========================
-              SUCCESS
-          ========================= */}
+          {/* SUCCESS */}
 
           {success && (
 
@@ -293,12 +295,9 @@ function Register() {
           )}
 
 
-          {/* =========================
-              REGISTER FORM
-          ========================= */}
+          {/* REGISTER FORM */}
 
           <form onSubmit={handleRegister}>
-
 
             {/* NAME */}
 
