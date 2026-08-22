@@ -1,4 +1,3 @@
-
 /* ==================================================
    SPENDWISE
    PREMIUM FINTECH DARK THEME
@@ -8083,4 +8082,1118 @@ textarea:focus {
 
 *::-webkit-scrollbar-thumb:hover {
   background: #5b3b91 !important;
+}
+
+
+/* ============================================================
+   SPENDWISE — FINAL UI REDESIGN
+   VISUAL ONLY — DO NOT REMOVE EXISTING FUNCTIONAL CSS
+   ============================================================ */
+
+:root {
+  --ui-bg: #07070b;
+  --ui-bg-soft: #0a0a10;
+  --ui-sidebar: #0b0a11;
+  --ui-card: #101018;
+  --ui-card-soft: #0d0d14;
+  --ui-card-hover: #14141e;
+  --ui-border: rgba(255,255,255,.075);
+  --ui-border-strong: rgba(139,92,246,.24);
+  --ui-text: #f5f3ff;
+  --ui-text-soft: #c7c4d4;
+  --ui-muted: #858195;
+  --ui-purple: #8b5cf6;
+  --ui-purple-light: #a78bfa;
+  --ui-purple-soft: rgba(139,92,246,.10);
+}
+
+/* ---------- GLOBAL DARK SURFACE ---------- */
+
+html,
+body,
+#root {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+}
+
+body {
+  background: var(--ui-bg) !important;
+}
+
+/* ---------- AUTH / LOGIN ---------- */
+
+.login-page {
+  min-height: 100vh !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--ui-bg) !important;
+}
+
+.login-page .auth-section {
+  min-height: 100vh !important;
+  padding: 32px 20px !important;
+}
+
+.login-page .auth-card {
+  width: min(100%, 450px) !important;
+  max-width: 450px !important;
+  padding: 40px !important;
+  background: var(--ui-card) !important;
+  border: 1px solid var(--ui-border) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,255,255,.015) inset !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.login-page .auth-card:hover {
+  border-color: var(--ui-border-strong) !important;
+  box-shadow:
+    0 30px 85px rgba(0,0,0,.52),
+    0 0 35px rgba(139,92,246,.055) !important;
+}
+
+.login-page .mobile-brand {
+  display: flex !important;
+  justify-content: center !important;
+  margin-bottom: 30px !important;
+}
+
+.login-page .mobile-brand .brand-mark {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(145deg,#8b5cf6,#6d28d9) !important;
+  box-shadow: 0 10px 28px rgba(139,92,246,.22) !important;
+}
+
+.login-page .mobile-brand span {
+  color: var(--ui-text) !important;
+  font-size: 22px !important;
+  font-weight: 750 !important;
+}
+
+.login-page .auth-heading {
+  margin-bottom: 30px !important;
+}
+
+.login-page .auth-heading-icon {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: var(--ui-purple-soft) !important;
+  border-color: rgba(139,92,246,.18) !important;
+  color: var(--ui-purple-light) !important;
+}
+
+.login-page .auth-heading h2 {
+  color: var(--ui-text) !important;
+  font-size: 27px !important;
+  letter-spacing: -.7px !important;
+}
+
+.login-page .auth-heading p {
+  color: var(--ui-muted) !important;
+}
+
+.login-page .input-group label {
+  color: var(--ui-text-soft) !important;
+}
+
+.login-page .auth-input-wrapper {
+  height: 50px !important;
+  border-radius: 12px !important;
+  background: #0a0a11 !important;
+  border-color: rgba(255,255,255,.085) !important;
+}
+
+.login-page .auth-input-wrapper:hover {
+  border-color: rgba(255,255,255,.14) !important;
+}
+
+.login-page .auth-input-wrapper:focus-within {
+  background: #0c0b13 !important;
+  border-color: rgba(139,92,246,.62) !important;
+  box-shadow: 0 0 0 4px rgba(139,92,246,.08) !important;
+}
+
+.login-page .auth-input-wrapper > svg {
+  color: #777286 !important;
+}
+
+.login-page .auth-input-wrapper:focus-within > svg {
+  color: var(--ui-purple-light) !important;
+}
+
+.login-page .auth-input-wrapper input {
+  color: var(--ui-text) !important;
+}
+
+.login-page .auth-input-wrapper input::placeholder {
+  color: #5f5b6c !important;
+}
+
+.login-page .password-label a {
+  color: var(--ui-purple-light) !important;
+}
+
+.login-page .password-label a:hover {
+  color: #c4b5fd !important;
+}
+
+.login-page .login-submit {
+  height: 50px !important;
+  margin-top: 7px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg,#8b5cf6,#6d28d9) !important;
+  box-shadow: 0 12px 28px rgba(109,40,217,.24) !important;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease !important;
+}
+
+.login-page .login-submit:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.07) !important;
+  box-shadow: 0 16px 34px rgba(109,40,217,.30) !important;
+}
+
+.login-page .divider {
+  margin: 27px 0 !important;
+}
+
+.login-page .divider::before,
+.login-page .divider::after {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.login-page .divider span {
+  color: #666174 !important;
+  background: var(--ui-card) !important;
+}
+
+.login-page .auth-footer {
+  color: var(--ui-muted) !important;
+}
+
+.login-page .auth-footer a {
+  color: var(--ui-purple-light) !important;
+}
+
+.login-page .security-note {
+  color: #666174 !important;
+}
+
+/* ---------- REGISTER ---------- */
+
+.auth-page {
+  min-height: 100vh !important;
+  background: var(--ui-bg) !important;
+  grid-template-columns: 1fr 460px !important;
+}
+
+.auth-showcase {
+  background: #09090f !important;
+  padding: 48px 7% !important;
+}
+
+.auth-showcase::after {
+  background: linear-gradient(
+    transparent,
+    rgba(139,92,246,.18),
+    transparent
+  ) !important;
+}
+
+.showcase-brand,
+.mobile-brand {
+  color: var(--ui-text) !important;
+}
+
+.auth-showcase .brand-mark,
+.auth-page .mobile-brand .brand-mark {
+  background: linear-gradient(145deg,#8b5cf6,#6d28d9) !important;
+  box-shadow: 0 10px 28px rgba(139,92,246,.20) !important;
+}
+
+.showcase-content h1 span {
+  color: var(--ui-purple-light) !important;
+}
+
+.eyebrow {
+  color: var(--ui-purple-light) !important;
+}
+
+.showcase-description {
+  color: var(--ui-muted) !important;
+}
+
+.finance-card {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.34) !important;
+}
+
+.auth-page > .auth-section {
+  background: var(--ui-bg) !important;
+}
+
+.auth-page .auth-card {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,.46) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.auth-page .auth-heading-icon {
+  background: var(--ui-purple-soft) !important;
+  border-color: rgba(139,92,246,.18) !important;
+  color: var(--ui-purple-light) !important;
+}
+
+.auth-page .auth-heading h2 {
+  color: var(--ui-text) !important;
+}
+
+.auth-page .auth-heading p {
+  color: var(--ui-muted) !important;
+}
+
+.auth-page .auth-input-wrapper {
+  height: 50px !important;
+  border-radius: 12px !important;
+  background: #0a0a11 !important;
+  border-color: rgba(255,255,255,.085) !important;
+}
+
+.auth-page .auth-input-wrapper:focus-within {
+  border-color: rgba(139,92,246,.62) !important;
+  box-shadow: 0 0 0 4px rgba(139,92,246,.08) !important;
+}
+
+.auth-page .login-submit {
+  height: 50px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg,#8b5cf6,#6d28d9) !important;
+  box-shadow: 0 12px 28px rgba(109,40,217,.24) !important;
+}
+
+.auth-page .auth-footer a {
+  color: var(--ui-purple-light) !important;
+}
+
+/* ---------- APP / DASHBOARD SHELL ---------- */
+
+.dashboard,
+.transactions-page {
+  background: var(--ui-bg) !important;
+}
+
+.sidebar {
+  background: var(--ui-sidebar) !important;
+  border-right: 1px solid var(--ui-border) !important;
+  box-shadow: 18px 0 55px rgba(0,0,0,.25) !important;
+}
+
+.sidebar-brand {
+  color: var(--ui-text) !important;
+}
+
+.sidebar .brand-mark,
+.user-avatar {
+  background: linear-gradient(145deg,#8b5cf6,#6d28d9) !important;
+  box-shadow: 0 8px 24px rgba(139,92,246,.18) !important;
+}
+
+.nav-title {
+  color: #615d6e !important;
+}
+
+.nav-item {
+  color: #918b9f !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  border-radius: 11px !important;
+}
+
+.nav-item:hover {
+  color: #eeeaff !important;
+  background: rgba(139,92,246,.07) !important;
+  border-color: rgba(139,92,246,.10) !important;
+}
+
+.nav-item.active {
+  color: #f3efff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(139,92,246,.15),
+    rgba(139,92,246,.045)
+  ) !important;
+  border-color: rgba(139,92,246,.20) !important;
+  box-shadow: inset 3px 0 0 #8b5cf6 !important;
+}
+
+.nav-item.active::before {
+  background: #8b5cf6 !important;
+  box-shadow: 0 0 14px rgba(139,92,246,.55) !important;
+}
+
+.nav-item.active span,
+.nav-item:hover span {
+  color: #c4b5fd !important;
+  background: rgba(139,92,246,.10) !important;
+}
+
+/* ---------- PAGE HEADERS ---------- */
+
+.page-heading,
+.dashboard-header {
+  margin-bottom: 28px !important;
+}
+
+.page-eyebrow,
+.dashboard-greeting {
+  color: var(--ui-purple-light) !important;
+}
+
+.page-heading h1,
+.dashboard-header h1 {
+  color: var(--ui-text) !important;
+  letter-spacing: -.8px !important;
+}
+
+.page-heading > div > p:last-child,
+.dashboard-header p {
+  color: var(--ui-muted) !important;
+}
+
+/* ---------- BUTTON SYSTEM ---------- */
+
+.add-dashboard-btn,
+.add-transaction-btn,
+.settings-save-btn {
+  border-radius: 11px !important;
+  background: linear-gradient(135deg,#8b5cf6,#6d28d9) !important;
+  border-color: rgba(196,181,253,.18) !important;
+  box-shadow: 0 10px 25px rgba(109,40,217,.20) !important;
+}
+
+.add-dashboard-btn:hover,
+.add-transaction-btn:hover,
+.settings-save-btn:hover {
+  background: linear-gradient(135deg,#9b6cff,#7c3aed) !important;
+  box-shadow: 0 14px 32px rgba(109,40,217,.28) !important;
+  transform: translateY(-1px);
+}
+
+.notification-btn {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+}
+
+.notification-btn:hover {
+  color: var(--ui-purple-light) !important;
+  border-color: rgba(139,92,246,.24) !important;
+  background: var(--ui-card-hover) !important;
+}
+
+/* ---------- DASHBOARD CARDS ---------- */
+
+.summary-card,
+.dashboard-panel,
+.analytics-summary-card,
+.analytics-chart-card,
+.transactions-container,
+.transaction-summary > div {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.23),
+    inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+
+.summary-card:hover,
+.dashboard-panel:hover,
+.analytics-summary-card:hover {
+  border-color: rgba(139,92,246,.18) !important;
+  box-shadow:
+    0 20px 44px rgba(0,0,0,.29),
+    0 0 25px rgba(139,92,246,.035) !important;
+}
+
+.summary-card h2,
+.panel-header h3,
+.analytics-page .analytics-chart-header h2 {
+  color: var(--ui-text) !important;
+}
+
+.summary-card-top > span,
+.panel-header p,
+.analytics-page .analytics-card-heading > span {
+  color: var(--ui-muted) !important;
+}
+
+.balance-card {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(139,92,246,.14),
+      transparent 35%
+    ),
+    #11101a !important;
+  border-color: rgba(139,92,246,.20) !important;
+}
+
+.summary-icon {
+  background: rgba(139,92,246,.09) !important;
+  border-color: rgba(139,92,246,.16) !important;
+  color: var(--ui-purple-light) !important;
+}
+
+.budget-percent {
+  color: #c4b5fd !important;
+  background: rgba(139,92,246,.08) !important;
+  border-color: rgba(139,92,246,.16) !important;
+}
+
+.budget-progress {
+  background: #08080d !important;
+  border-color: rgba(255,255,255,.05) !important;
+}
+
+.budget-progress div {
+  background: linear-gradient(90deg,#7c3aed,#a78bfa) !important;
+  box-shadow: 0 0 15px rgba(139,92,246,.18) !important;
+}
+
+/* ---------- TRANSACTIONS ---------- */
+
+.transactions-page {
+  padding-top: 38px !important;
+}
+
+.transactions-container {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.transaction-toolbar {
+  background: #0d0d14 !important;
+  border-bottom-color: var(--ui-border) !important;
+}
+
+.search-box,
+.filter-buttons {
+  background: #09090f !important;
+  border-color: rgba(255,255,255,.075) !important;
+}
+
+.search-box:focus-within {
+  border-color: rgba(139,92,246,.42) !important;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.07) !important;
+}
+
+.filter-button.active {
+  background: rgba(139,92,246,.13) !important;
+  color: #d9ccff !important;
+  border-color: rgba(139,92,246,.18) !important;
+}
+
+.transaction-row {
+  border-top-color: rgba(255,255,255,.055) !important;
+}
+
+.transaction-row:hover {
+  background: rgba(139,92,246,.045) !important;
+}
+
+.transaction-icon {
+  background: rgba(139,92,246,.08) !important;
+  border-color: rgba(139,92,246,.13) !important;
+}
+
+.view-all-btn {
+  color: var(--ui-purple-light) !important;
+}
+
+/* ---------- BUDGETS ---------- */
+
+.budget-card {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,.22) !important;
+}
+
+.budget-card:hover {
+  border-color: rgba(139,92,246,.20) !important;
+  box-shadow: 0 19px 42px rgba(0,0,0,.28) !important;
+}
+
+.budget-icon {
+  background: rgba(139,92,246,.08) !important;
+  border-color: rgba(139,92,246,.14) !important;
+  color: var(--ui-purple-light) !important;
+}
+
+.budget-actions button {
+  border-color: rgba(255,255,255,.07) !important;
+  background: #0b0b12 !important;
+}
+
+.budget-actions button:hover {
+  color: var(--ui-purple-light) !important;
+  border-color: rgba(139,92,246,.24) !important;
+  background: rgba(139,92,246,.08) !important;
+}
+
+/* ---------- ANALYTICS ---------- */
+
+.analytics-page .analytics-summary-card,
+.analytics-page .analytics-chart-card {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 16px !important;
+}
+
+.analytics-page .analytics-icon {
+  background: rgba(139,92,246,.08) !important;
+  border-color: rgba(139,92,246,.14) !important;
+  color: var(--ui-purple-light) !important;
+}
+
+.analytics-page .analytics-chart-header p,
+.analytics-page .analytics-summary-card small {
+  color: var(--ui-muted) !important;
+}
+
+/* ---------- SETTINGS ---------- */
+
+.settings-section {
+  background: var(--ui-card) !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 16px !important;
+}
+
+.settings-field input,
+.settings-field select {
+  background: #0a0a11 !important;
+  border-color: rgba(255,255,255,.08) !important;
+  border-radius: 11px !important;
+  color: var(--ui-text) !important;
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+  border-color: rgba(139,92,246,.52) !important;
+  box-shadow: 0 0 0 4px rgba(139,92,246,.07) !important;
+}
+
+.settings-save-btn {
+  min-height: 44px !important;
+  border-radius: 11px !important;
+}
+
+.settings-danger {
+  border-color: rgba(244,63,94,.16) !important;
+}
+
+.settings-logout-btn,
+.logout-btn {
+  transition: .2s ease !important;
+}
+
+.settings-logout-btn:hover,
+.logout-btn:hover {
+  color: #fb7185 !important;
+  border-color: rgba(244,63,94,.20) !important;
+}
+
+/* ---------- GENERIC INPUTS ---------- */
+
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(139,92,246,.50) !important;
+  box-shadow: 0 0 0 4px rgba(139,92,246,.07) !important;
+}
+
+/* ---------- MODALS / FORMS ---------- */
+
+.add-transaction-modal,
+.transaction-modal,
+.budget-modal,
+.modal-content {
+  background: #0e0e16 !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.58) !important;
+}
+
+/* ---------- SCROLLBAR ---------- */
+
+* {
+  scrollbar-color: #34264f #08080d !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: #08080d !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #34264f !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #5b3c89 !important;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr !important;
+  }
+
+  .auth-showcase {
+    display: none !important;
+  }
+
+  .auth-page .auth-section {
+    min-height: 100vh !important;
+    padding: 28px 18px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .login-page .auth-card,
+  .auth-page .auth-card {
+    padding: 28px 22px !important;
+    border-radius: 18px !important;
+  }
+
+  .transactions-page {
+    padding: 25px 15px 40px !important;
+  }
+
+  .page-heading {
+    align-items: flex-start !important;
+    gap: 16px !important;
+    flex-direction: column !important;
+  }
+
+  .summary-grid,
+  .transaction-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =========================================================
+   SPENDWISE — UI BUG FIXES BEFORE REDESIGN
+   ========================================================= */
+
+
+/* =========================================================
+   1. DELETE BUDGET MODAL
+   ========================================================= */
+
+.delete-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+
+  z-index: 9999 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 20px !important;
+
+  background: rgba(2, 6, 23, 0.78) !important;
+
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+.delete-modal {
+  width: min(460px, 100%) !important;
+
+  padding: 28px !important;
+
+  background: #0d111b !important;
+
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  border-radius: 18px !important;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset !important;
+
+  text-align: left !important;
+
+  animation: spendwiseModalIn 0.18s ease-out !important;
+}
+
+.delete-modal-icon {
+  width: 46px !important;
+  height: 46px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin-bottom: 18px !important;
+
+  border-radius: 12px !important;
+
+  background: rgba(248, 113, 113, 0.10) !important;
+
+  border: 1px solid rgba(248, 113, 113, 0.18) !important;
+
+  color: #fb7185 !important;
+}
+
+.delete-modal h2 {
+  margin: 0 0 8px !important;
+
+  color: #f8fafc !important;
+
+  font-size: 22px !important;
+  font-weight: 700 !important;
+
+  line-height: 1.25 !important;
+}
+
+.delete-modal p {
+  margin: 0 !important;
+
+  color: #94a3b8 !important;
+
+  font-size: 14px !important;
+
+  line-height: 1.6 !important;
+}
+
+.delete-modal p strong {
+  color: #f8fafc !important;
+  font-weight: 650 !important;
+}
+
+.delete-modal-actions {
+  display: flex !important;
+
+  justify-content: flex-end !important;
+
+  gap: 10px !important;
+
+  margin-top: 26px !important;
+}
+
+.delete-modal-actions button {
+  min-height: 40px !important;
+
+  padding: 0 16px !important;
+
+  border-radius: 9px !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease !important;
+}
+
+.delete-modal-actions .cancel-btn {
+  background: #111827 !important;
+
+  color: #cbd5e1 !important;
+
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.delete-modal-actions .cancel-btn:hover {
+  background: #182131 !important;
+
+  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+.delete-confirm-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 7px !important;
+
+  background: #dc2626 !important;
+
+  color: white !important;
+
+  border: 1px solid #ef4444 !important;
+}
+
+.delete-confirm-btn:hover {
+  background: #ef4444 !important;
+
+  transform: translateY(-1px) !important;
+}
+
+@keyframes spendwiseModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =========================================================
+   2. SUCCESS / ERROR FEEDBACK
+   ========================================================= */
+
+.transactions-page > .form-message {
+  width: min(100%, 760px) !important;
+
+  min-height: 44px !important;
+
+  display: flex !important;
+  align-items: center !important;
+
+  gap: 10px !important;
+
+  margin: 0 0 18px !important;
+
+  padding: 10px 12px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+
+  box-sizing: border-box !important;
+}
+
+.transactions-page > .form-message > span:nth-child(2) {
+  flex: 1 !important;
+}
+
+.transactions-page > .form-message button {
+  width: 28px !important;
+  height: 28px !important;
+
+  flex: 0 0 28px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 0 !important;
+
+  border-radius: 7px !important;
+
+  background: transparent !important;
+
+  color: currentColor !important;
+
+  border: none !important;
+
+  cursor: pointer !important;
+}
+
+.transactions-page > .form-message button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.transactions-page > .success-message {
+  color: #6ee7b7 !important;
+
+  background: rgba(16, 185, 129, 0.07) !important;
+
+  border: 1px solid rgba(52, 211, 153, 0.18) !important;
+}
+
+.transactions-page > .error-message {
+  color: #fda4af !important;
+
+  background: rgba(244, 63, 94, 0.07) !important;
+
+  border: 1px solid rgba(251, 113, 133, 0.18) !important;
+}
+
+
+/* =========================================================
+   3. EMPTY BUDGET / TRANSACTION STATE
+   ========================================================= */
+
+.transactions-container > .no-transactions {
+  min-height: 220px !important;
+
+  padding: 40px 24px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  text-align: center !important;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  background: transparent !important;
+
+  box-shadow: none !important;
+}
+
+.transactions-container > .no-transactions > div:first-child {
+  width: 50px !important;
+  height: 50px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  margin-bottom: 14px !important;
+
+  border-radius: 13px !important;
+
+  background: rgba(139, 92, 246, 0.08) !important;
+
+  border: 1px solid rgba(139, 92, 246, 0.18) !important;
+
+  color: #a78bfa !important;
+}
+
+.transactions-container > .no-transactions h3 {
+  margin: 0 0 7px !important;
+
+  color: #f8fafc !important;
+
+  font-size: 17px !important;
+  font-weight: 650 !important;
+}
+
+.transactions-container > .no-transactions p {
+  max-width: 420px !important;
+
+  margin: 0 0 18px !important;
+
+  color: #7f8ba0 !important;
+
+  font-size: 13px !important;
+
+  line-height: 1.5 !important;
+}
+
+
+/* =========================================================
+   4. TRANSACTION SUMMARY CARDS
+   ========================================================= */
+
+.transaction-summary {
+  width: 100% !important;
+
+  display: grid !important;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+
+  gap: 14px !important;
+
+  margin: 0 0 20px !important;
+}
+
+.transaction-summary > div {
+  min-height: 96px !important;
+
+  padding: 18px !important;
+
+  box-sizing: border-box !important;
+
+  background: #0d111b !important;
+
+  border: 1px solid rgba(148, 163, 184, 0.12) !important;
+
+  border-radius: 14px !important;
+
+  box-shadow: none !important;
+}
+
+.transaction-summary > div:hover {
+  transform: translateY(-2px) !important;
+
+  border-color: rgba(139, 92, 246, 0.22) !important;
+}
+
+.transaction-summary span {
+  margin-bottom: 8px !important;
+
+  color: #718096 !important;
+
+  font-size: 10px !important;
+
+  font-weight: 650 !important;
+
+  letter-spacing: 0.06em !important;
+
+  text-transform: uppercase !important;
+}
+
+.transaction-summary strong {
+  color: #f8fafc !important;
+
+  font-size: 23px !important;
+
+  font-weight: 750 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .delete-modal {
+    padding: 22px !important;
+  }
+
+  .delete-modal-actions {
+    flex-direction: column-reverse !important;
+  }
+
+  .delete-modal-actions button {
+    width: 100% !important;
+  }
+
+  .transaction-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .transactions-page > .form-message {
+    width: 100% !important;
+  }
 }
